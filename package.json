@@ -1,0 +1,27 @@
+{
+  "name": "css3d-cylinder",
+  "version": "1.0.0",
+  "description": "A simple, light-weight and extensible CSS 3D Cylinder",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BlueWebber/css3d-cylinder.git"
+  },
+  "keywords": [
+    "CSS3D",
+    "vanilla",
+    "lightweight",
+    "extensible",
+    "cylinder",
+    "carousel"
+  ],
+  "author": "BlueWebber",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BlueWebber/css3d-cylinder/issues"
+  },
+  "homepage": "https://github.com/BlueWebber/css3d-cylinder#readme"
+}
