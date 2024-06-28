@@ -1,6 +1,6 @@
 {
   "name": "css3d-cylinder",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "A simple, light-weight and extensible CSS 3D Cylinder",
   "main": "index.js",
   "scripts": {
@@ -16,7 +16,10 @@
     "lightweight",
     "extensible",
     "cylinder",
-    "carousel"
+    "carousel",
+    "web-component",
+    "responsive",
+    "minified"
   ],
   "author": "BlueWebber",
   "license": "ISC",
