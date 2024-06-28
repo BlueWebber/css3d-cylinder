@@ -207,6 +207,7 @@ customElements.define("css3d-cylinder", Cylinder);
 ```
 
 Result: https://jsfiddle.net/0etbd9nL/
+
 ![Result gif](https://i.imgur.com/t9GHUAz.gif)
 
 ### Example 2:
@@ -317,4 +318,5 @@ document.getElementById("next").onclick = () => {
 ```
 
 Result: https://jsfiddle.net/9qkbtr57/
+
 ![Result gif](https://i.imgur.com/bgPdzLw.gif)
