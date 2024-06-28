@@ -4,8 +4,8 @@
 
 ## A simple, light-weight and extensible web component
 
-This tool allows you to create n-sided cylinders with JS and CSS, no third-party packages used.
-The cylinders can have any number of sides, and can be horizontally or vertically oriented, however, each side of the cylinder must have an equal width (in case of a horizontally-oriented cylinder) or an equal height (in case of a vertically oriented cylinder).
+This tool allows you to create n-faced cylinders with JS and CSS, no third-party packages used.
+The cylinders can have any number of faces, can be dynamically sized or oriented, can be rotated or moved in any direction, and can easily be extended and overridden. however, each face of the cylinder must have an equal width (in case of a horizontally-oriented cylinder) or an equal height (in case of a vertically oriented cylinder).
 
 ## Installation
 
@@ -81,7 +81,7 @@ Shadow Root
 
 - The Perspective Container holds the Items Container, and sets the CSS `perspective` property to give the Items Container depth, its element is given the ID `perspective-container`
 
-- The Items Container is what holds the cylinder's sides, the number of its children is automatically the number of the cylinder's sides, unless the `ignore` is applied to its child, in that case it won't be counted as a side and won't be transformed. its element is given the ID `items-container`
+- The Items Container is what holds the cylinder's faces, the number of its children is automatically the number of the cylinder's faces, unless the `ignore` is applied to its child, in that case it won't be counted as a face and won't be transformed. its element is given the ID `items-container`
 
   - The Items Container's Z-origin gets sets to the radius of the cylinder, that way, it'd rotate about its center point.
 
@@ -106,7 +106,7 @@ If you're experiencing performance issues, it's recommended to set `contain` for
 | vertical                | `boolean` | Makes the cylinder vertically-aligned, by default it's horizontally-aligned                                                                                                                                                                                                                                                                           |
 | with-overlay            | `boolean` | Determines whether the cylinder has an overlay or not, it's better to keep it off unless needed because it uses a lot of `getBoundingClientRect()` calls                                                                                                                                                                                              |
 | items-container-element | `string`  | Sets the items container element (expects an HTML element name), by default it's `div`                                                                                                                                                                                                                                                                |
-| perspective             | `string`  | Sets the CSS `perspective` value for the perspective container, by default, it's equal to: `cylinder-radius + item-dimension *  4  +  "px"`, where `item-dimension` is the width of the cylinder side for a horizontal cylinder, and the height of the side for a vertical cylinder                                                                   |
+| perspective             | `string`  | Sets the CSS `perspective` value for the perspective container, by default, it's equal to: `cylinder-radius + item-dimension *  4  +  "px"`, where `item-dimension` is the width of the cylinder face for a horizontal cylinder, and the height of the face for a vertical cylinder                                                                   |
 | rotate-negative         | `boolean` | Makes the cylinder wrap from right to left (by default it wraps from left to right), in case of a vertical cylinder, it makes it wrap from top to bottom                                                                                                                                                                                              |
 | raw                     | `boolean` | Enables `raw mode` for the cylinder, the cylinder won't provide any elements, you'll provide them yourself, and the cylinder will put them inside the shadow DOM. You're expected to provide elements with the following IDs: `#perspective-container`, `#items-container`, `#overlay`. With `#items-container` being inside `#perspective-container` |
 
@@ -123,7 +123,7 @@ Every instance of `Cylinder` exposes the following properties:
 | items | `NodeList` | The non-ignored children of Items Container
 | ignoredElems | `NodeList` | The ignored children of Items Container
 | styleElems | `NodeList` | The style tags in the cylinder
-| numSides | `integer` | The number of sides of the cylinder, equal to the length of `items`
+| numSides | `integer` | The number of faces of the cylinder, equal to the length of `items`
 | rotDeg | `integer` | The number of degrees the Items Container should be rotated in the X or Y axis to show the next face of the cylinder
 | renderOut | `function` | Recalculates the radius of the cylinder and transforms the `items` accordingly, by default, it's called once when the component is connected, then it's called when a cylinder face is resized or when an attribute changes.
 | resizeObserver | ResizeObserver | The resize observer that observes every face of the cylinder and calls `renderOut()` whenever the dimensions of a face change.
@@ -138,7 +138,7 @@ document.getElementById("your-cylinder-id")[property];
 
 ### Example 1:
 
-This example creates a simple 5-sided cylinder with an image on each side.
+This example creates a simple 5-faced cylinder with an image on each face.
 
 HTML (Special thanks to [placedog](https://placedog.net) for providing the images):
 
