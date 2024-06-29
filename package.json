@@ -1,6 +1,6 @@
 {
   "name": "css3d-cylinder",
-  "version": "1.0.3",
+  "version": "2.0.1",
   "description": "A simple, light-weight and extensible CSS 3D Cylinder",
   "main": "index.js",
   "scripts": {

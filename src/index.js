@@ -248,3 +248,5 @@ Cylinder.sheet.replaceSync(`
       }
     }
   `);
+
+export default Cylinder;
