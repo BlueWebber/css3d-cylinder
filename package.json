@@ -26,5 +26,6 @@
   "bugs": {
     "url": "https://github.com/BlueWebber/css3d-cylinder/issues"
   },
-  "homepage": "https://github.com/BlueWebber/css3d-cylinder#readme"
+  "homepage": "https://github.com/BlueWebber/css3d-cylinder#readme",
+  "types": "./types"
 }

@@ -13,6 +13,6 @@ declare class Cylinder extends HTMLElement {
   rotDeg: number;
   renderOut: () => void;
   resizeObserver: ResizeObserver;
-  attributeChangedCallback(name: any, oldVal: any, newVal: any): void;
+  attributeChangedCallback(name: string, oldVal: any, newVal: any): void;
   disconnectedCallback(): void;
 }
