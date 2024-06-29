@@ -80,6 +80,10 @@ class Cylinder extends HTMLElement {
       }deg)`;
     }
 
+    if (this.anchorElem) {
+      this.anchorElem.style.transform = `translateZ(-${rad}px)`;
+    }
+
     if (this[attrs.overlay]) {
       this.renderOverlay();
     }
@@ -99,11 +103,13 @@ class Cylinder extends HTMLElement {
       this.ignoredElems =
         this.itemsContainer.querySelectorAll(":scope > .ignore");
       this.styleElems = this.querySelectorAll("style");
+      this.anchorElem = this.querySelector(".anchor");
       shadow.append(...this.querySelectorAll(":scope > *"));
     } else {
       this.items = this.querySelectorAll(":scope > :not(style, link, .ignore)");
       this.ignoredElems = this.querySelectorAll(".ignore");
       this.styleElems = this.querySelectorAll("style");
+      this.anchorElem = this.querySelector(".anchor");
       this.perspectiveContainer = document.createElement("div");
       this.perspectiveContainer.id = "perspective-container";
       this.itemsContainer = document.createElement(
