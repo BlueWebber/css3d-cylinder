@@ -62,26 +62,26 @@ class Cylinder extends HTMLElement {
       )
     );
     /* Calculate how far the new Z axis should be based off the radius of the largest circle inscribed within a regular shape of this number of sides */
-    const rad =
+    this.rad =
       Math.tan(
         (((180 * (this.numSides - 2)) / (2 * this.numSides)) * Math.PI) / 180
       ) *
       (itemDim / 2);
 
     // The perspective, by default it's the: cylinder radius + 4*item dimension (dimension is width or height depending on orientation)
-    this.perspectiveContainer.style.perspective = rad + itemDim * 4 + "px";
-    this.itemsContainer.style.transformOrigin = `center center -${rad}px`;
+    this.perspectiveContainer.style.perspective = this.rad + itemDim * 4 + "px";
+    this.itemsContainer.style.transformOrigin = `center center -${this.rad}px`;
 
     for (let i = 0; i < this.numSides; i++) {
       const elem = this.items[i];
-      elem.style.transformOrigin = `center center -${rad}px`;
+      elem.style.transformOrigin = `center center -${this.rad}px`;
       elem.style.transform = `rotate${this[attrs.vertical] ? "X" : "Y"}(${
         this.rotateMultiplier * i * this.rotDeg
       }deg)`;
     }
 
     if (this.anchorElem) {
-      this.anchorElem.style.transform = `translateZ(-${rad}px)`;
+      this.anchorElem.style.transform = `translateZ(-${this.rad}px)`;
     }
 
     if (this[attrs.overlay]) {
