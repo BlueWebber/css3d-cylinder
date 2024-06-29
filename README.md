@@ -80,7 +80,7 @@ Shadow Root
 - The Perspective Container holds the Items Container, and sets the CSS `perspective` property to give the Items Container depth, its element is given the ID `perspective-container`.
 - The Items Container is what holds the cylinder's faces, the number of its children is automatically the number of the cylinder's faces, unless the `ignore` is applied to its child, in that case it won't be counted as a face and won't be transformed. its element is given the ID `items-container`.
 - One child of the items container can have the `anchor` class combined with `ignore`, this will make that element get placed in the center of the cylinder.
-- The Items Container's Z-origin gets sets to the radius of the cylinder, that way, it'd rotate about its center point.
+- The Items Container's Z-origin gets set to the radius of the cylinder, that way, it'd rotate about its center point.
 - The Items Container's children get transformed, their Z-origin changes to the radius of the cylinder, and then they get rotated incrementally in the X or Y direction depending on the orientation of the cylinder.
 - The radius of the cylinder is calculated by finding the radius of the largest inscribed circle in the regular polygon whose number of sides is that of Items Container's non-ignored children.
 - The overlay is simply an absolutely-positioned div that is placed on top of your perspective container, it takes covers _the total visible area of the Items Container_ by making a `getBoundingClientRect()` call on every face of the cylinder to determine the total visible area.
