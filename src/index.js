@@ -2,18 +2,31 @@ const attrs = {
   overlay: "with-overlay",
   vertical: "vertical",
   itemsContainerElem: "items-container-element",
-  perspective: "perspective",
   rotateNegative: "rotate-negative",
   rawMode: "raw",
+  debounce: "debounce-rerender",
+  noResize: "no-resize",
+};
+
+// changing those attrs triggers a re-render
+const rerenderingAttrs = [attrs.vertical, attrs.rotateNegative];
+
+const debounce = (func, timeout) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      func.apply(this, args);
+    }, timeout);
+  };
 };
 
 class Cylinder extends HTMLElement {
   static observedAttributes = [
     attrs.overlay,
     attrs.vertical,
-    attrs.itemsContainerElem,
-    attrs.perspective,
     attrs.rotateNegative,
+    attrs.debounce,
   ];
   static sheet = new CSSStyleSheet();
 
@@ -21,127 +34,172 @@ class Cylinder extends HTMLElement {
     super();
   }
 
+  renderOverlay = () => {
+    let leftMost = window.innerWidth;
+    let rightMost = 0;
+    let topMost = window.innerHeight;
+    let bottomMost = 0;
+
+    this.items.forEach((item) => {
+      const rect = item.getBoundingClientRect();
+      if (rect.left < leftMost) leftMost = rect.left;
+      if (rect.right > rightMost) rightMost = rect.right;
+      if (rect.bottom > bottomMost) bottomMost = rect.bottom;
+      if (rect.top < topMost) topMost = rect.top;
+    });
+
+    this.overlay.style.width = rightMost - leftMost + "px";
+    this.overlay.style.height = bottomMost - topMost + "px";
+  };
+
+  renderOut = () => {
+    const itemStyle = getComputedStyle(this.itemsContainer.children[0]);
+    // The width or height of each item, which will be used depends on orientation
+    const itemDim = parseInt(
+      itemStyle[this[attrs.vertical] ? "height" : "width"].replace(
+        /[^0-9\.]+/g,
+        ""
+      )
+    );
+    /* Calculate how far the new Z axis should be based off the radius of the largest circle inscribed within a regular shape of this number of sides */
+    const rad =
+      Math.tan(
+        (((180 * (this.numSides - 2)) / (2 * this.numSides)) * Math.PI) / 180
+      ) *
+      (itemDim / 2);
+
+    // The perspective, by default it's the: cylinder radius + 4*item dimension (dimension is width or height depending on orientation)
+    this.perspectiveContainer.style.perspective = rad + itemDim * 4 + "px";
+    this.itemsContainer.style.transformOrigin = `center center -${rad}px`;
+
+    for (let i = 0; i < this.numSides; i++) {
+      const elem = this.items[i];
+      elem.style.transformOrigin = `center center -${rad}px`;
+      elem.style.transform = `rotate${this[attrs.vertical] ? "X" : "Y"}(${
+        this.rotateMultiplier * i * this.rotDeg
+      }deg)`;
+    }
+
+    if (this[attrs.overlay]) {
+      this.renderOverlay();
+    }
+  };
+
   connectedCallback() {
-    const isRaw = this.hasAttribute(attrs.rawMode);
-    const withOverlay = this.hasAttribute(attrs.overlay);
-    const isVertical = this.hasAttribute(attrs.vertical);
-    const containerElemType =
-      this.getAttribute(attrs.itemsContainerElem) || "div";
-    const rotateMultiplier = this.hasAttribute(attrs.rotateNegative) ? -1 : 1;
     const shadow = this.attachShadow({ mode: "open" });
     shadow.adoptedStyleSheets = [Cylinder.sheet];
 
-    let [
-      perspectiveContainer,
-      itemsContainer,
-      overlay,
-      items,
-      ignoredElems,
-      styleElems,
-    ] = [];
-
-    if (isRaw) {
-      perspectiveContainer = this.perspectiveContainer = this.querySelector(
-        "#perspective-container"
-      );
-      itemsContainer = this.itemsContainer =
-        this.querySelector("#items-container");
-      overlay = this.overlay = this.querySelector("#overlay");
-      items = this.items = itemsContainer.querySelectorAll(
+    if (this.hasAttribute(attrs.rawMode)) {
+      this.perspectiveContainer = this.querySelector("#perspective-container");
+      this.itemsContainer = this.querySelector("#items-container");
+      this.overlay = this.querySelector("#overlay");
+      this.items = this.itemsContainer.querySelectorAll(
         ":scope > :not(.ignore)"
       );
-      ignoredElems = this.ignoredElems =
-        itemsContainer.querySelectorAll(":scope > .ignore");
-      styleElems = this.styleElems = this.querySelectorAll("style");
+      this.ignoredElems =
+        this.itemsContainer.querySelectorAll(":scope > .ignore");
+      this.styleElems = this.querySelectorAll("style");
       shadow.append(...this.querySelectorAll(":scope > *"));
     } else {
-      items = this.items = this.querySelectorAll(
-        ":scope > :not(style, link, .ignore)"
+      this.items = this.querySelectorAll(":scope > :not(style, link, .ignore)");
+      this.ignoredElems = this.querySelectorAll(".ignore");
+      this.styleElems = this.querySelectorAll("style");
+      this.perspectiveContainer = document.createElement("div");
+      this.perspectiveContainer.id = "perspective-container";
+      this.itemsContainer = document.createElement(
+        this.getAttribute(attrs.itemsContainerElem) || "div"
       );
-      ignoredElems = this.ignoredElems = this.querySelectorAll(".ignore");
-      styleElems = this.styleElems = this.querySelectorAll("style");
-      perspectiveContainer = this.perspectiveContainer =
-        document.createElement("div");
-      perspectiveContainer.id = "perspective-container";
-      itemsContainer = this.itemsContainer =
-        document.createElement(containerElemType);
-      itemsContainer.id = "items-container";
-      overlay = this.overlay = document.createElement("div");
-      overlay.id = "overlay";
-
-      itemsContainer.append(...items, ...ignoredElems);
+      this.itemsContainer.id = "items-container";
+      this.itemsContainer.append(...this.items, ...this.ignoredElems);
+      this.overlay = document.createElement("div");
+      this.overlay.id = "overlay";
       this.replaceChildren();
-      perspectiveContainer.appendChild(itemsContainer);
-      shadow.append(...styleElems, overlay, perspectiveContainer);
-    }
-
-    if (!withOverlay) {
-      overlay.style.display = "none";
-    }
-
-    const numSides = (this.numSides = items.length);
-    const rotDeg = (this.rotDeg = 360 / numSides);
-    const renderOut = (this.renderOut = () => {
-      const itemStyle = getComputedStyle(itemsContainer.children[0]);
-      // The width or height of each item, which will be used depends on orientation
-      const itemDim = parseInt(
-        itemStyle[isVertical ? "height" : "width"].replace(/[^0-9\.]+/g, "")
+      this.perspectiveContainer.appendChild(this.itemsContainer);
+      shadow.append(
+        ...this.styleElems,
+        this.overlay,
+        this.perspectiveContainer
       );
-      /* Calculate how far the new Z axis should be based off the radius of the largest circle inscribed within a regular shape of this number of sides */
-      const rad =
-        Math.tan((((180 * (numSides - 2)) / (2 * numSides)) * Math.PI) / 180) *
-        (itemDim / 2);
+    }
 
-      // The perspective, by default it's the: cylinder radius + 4*item dimension (dimension is width or height depending on orientation)
-      perspectiveContainer.style.perspective =
-        this.getAttribute(attrs.perspective) || rad + itemDim * 4 + "px";
+    this.numSides = this.items.length;
+    this.rotDeg = 360 / this.numSides;
+    this.firstRender = true;
+    if (!this.rotateMultiplier) this.rotateMultiplier = 1;
+    if (!this.renderOutDebounced) this.renderOutDebounced = this.renderOut;
 
-      itemsContainer.style.transformOrigin = `center center -${rad}px`;
+    if (!this.hasAttribute(attrs.noResize)) {
+      this.resizeObserver = new ResizeObserver((entries) => {
+        if (this.firstRender) {
+          this.renderOut();
+          this.firstRender = false;
+          return;
+        }
+        this.renderOutDebounced();
+      });
 
-      for (let i = 0; i < numSides; i++) {
-        const elem = items[i];
-        elem.style.transformOrigin = `center center -${rad}px`;
-        elem.style.transform = `rotate${isVertical ? "X" : "Y"}(${
-          rotateMultiplier * i * rotDeg
-        }deg)`;
-      }
-
-      if (withOverlay) {
-        let leftMost = window.innerWidth;
-        let rightMost = 0;
-        let topMost = window.innerHeight;
-        let bottomMost = 0;
-
-        items.forEach((item) => {
-          const rect = item.getBoundingClientRect();
-          if (rect.left < leftMost) leftMost = rect.left;
-          if (rect.right > rightMost) rightMost = rect.right;
-          if (rect.bottom > bottomMost) bottomMost = rect.bottom;
-          if (rect.top < topMost) topMost = rect.top;
-        });
-        overlay.style.width = rightMost - leftMost + "px";
-        overlay.style.height = bottomMost - topMost + "px";
-      }
-    });
-
-    const resizeObserver = (this.resizeObserver = new ResizeObserver(
-      (entries) => {
-        renderOut();
-      }
-    ));
-    resizeObserver.observe(...items);
+      this.mutationObserver = new MutationObserver((entries) => {
+        for (const mutation of entries) {
+          if (mutation.type === "childList") {
+            this.resizeObserver.disconnect();
+            this.items = this.itemsContainer.querySelectorAll(
+              ":scope > :not(.ignore, style, link)"
+            );
+            this.ignoredElems = this.itemsContainer.querySelectorAll(".ignore");
+            this.numSides = this.items.length;
+            this.rotDeg = 360 / this.numSides;
+            this.resizeObserver.observe(...this.items);
+          }
+        }
+      });
+      this.mutationObserver.observe(this.itemsContainer, { childList: true });
+      this.resizeObserver.observe(...this.items);
+    } else {
+      this.renderOut();
+    }
   }
 
   attributeChangedCallback(name, oldVal, newVal) {
-    this.renderOut && this.renderOut();
-    if (this.overlay && name === attrs.overlay) {
-      this.overlay.style.display =
-        this.overlay.style.display === "block" ? "none" : "block";
+    switch (name) {
+      case attrs.overlay: {
+        // if the newVal is not equal to null, the attribute is present
+        if (newVal !== null) {
+          this[attrs.overlay] = true;
+          this.overlay.style.display = "block";
+          this.renderOverlay();
+        } else {
+          this[attrs.overlay] = false;
+          this.overlay.style.display = "none";
+        }
+        break;
+      }
+      case attrs.rotateNegative: {
+        this.rotateMultiplier = newVal !== null ? -1 : 1;
+        break;
+      }
+      case attrs.debounce: {
+        if (newVal === "-1") {
+          this.renderOutDebounced = () => {};
+        } else if (newVal !== null) {
+          this.renderOutDebounced = debounce(this.renderOut, parseInt(newVal));
+        } else {
+          this.renderOutDebounced = this.renderOut;
+        }
+        break;
+      }
+      default: {
+        this[name] = newVal !== null ? newVal || true : false;
+      }
+    }
+
+    if (rerenderingAttrs.includes(name)) {
+      this.itemsContainer && this.renderOut();
     }
   }
 
   disconnectedCallback() {
-    this.resizeObserver.disconnect();
+    this.resizeObserver?.disconnect();
+    this.mutationObserver?.disconnect();
   }
 }
 
@@ -184,5 +242,3 @@ Cylinder.sheet.replaceSync(`
       }
     }
   `);
-
-export default Cylinder;
