@@ -81,7 +81,7 @@ class Cylinder extends HTMLElement {
     }
 
     if (this.anchorElem) {
-      this.anchorElem.style.transform = `translateZ(-${this.rad}px)`;
+      this.anchorElem.style.translate = `0px 0px -${this.rad}px`;
     }
 
     if (this[attrs.overlay]) {
