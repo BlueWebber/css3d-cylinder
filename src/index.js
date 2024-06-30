@@ -249,4 +249,8 @@ Cylinder.sheet.replaceSync(`
     }
   `);
 
+console.log(
+  "This package has been deprecated and replaced by its clone 3d-carousel-js, please install it from here: https://www.npmjs.com/package/3d-carousel-js"
+);
+
 export default Cylinder;

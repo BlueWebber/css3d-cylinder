@@ -2,6 +2,8 @@
 
 [![GitHub license](https://img.shields.io/badge/license-ISC-blue.svg)](https://github.com/BlueWebber/css3d-cylinder/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/css3d-cylinder.svg?style=flat)](https://www.npmjs.com/package/css3d-cylinder) [![minified size](https://img.shields.io/bundlephobia/min/css3d-cylinder) ](https://bundlephobia.com/result?p=css3d-cylinder)[![minzipped size](https://img.shields.io/bundlephobia/minzip/css3d-cylinder) ](https://bundlephobia.com/result?p=css3d-cylinder)![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
 
+## This package has been deprecated and replaced by its clone, 3d-carousel-js, please install it from here: https://www.npmjs.com/package/3d-carousel-js
+
 ## A simple, light-weight and extensible web component
 
 This tool allows you to create n-faced cylinders with JS and CSS, no third-party packages used.
